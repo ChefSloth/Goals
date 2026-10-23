@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#2f7d6d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Goals</title>
+<style>
+:root{
+  --bg:#eef3f1;--card:#fff;--text:#1b2a26;--muted:#66766f;--accent:#2f7d6d;--accent-text:#fff;--line:#d5e0db;
+  --good:#2e9e5b;--warn:#d98a1c;--bad:#c9473d;
+  --r:14px;--bw:1px;--fs:16px;--pad:14px;--font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:var(--fs)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;
+  padding:env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 24px);overscroll-behavior-y:contain}
+button,input,select,textarea{font:inherit;color:inherit}
+#app{max-width:640px;margin:0 auto;padding:0 16px}
+header.top{display:flex;align-items:center;gap:8px;padding:14px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
+header.top h1{font-size:1.35rem;margin:0;flex:1;line-height:1.15}
+header.top h1 small{display:block;font-size:.72rem;font-weight:500;color:var(--muted);margin-top:2px}
+.icon{width:42px;height:42px;border-radius:50%;border:var(--bw) solid var(--line);background:var(--card);display:grid;place-items:center;font-size:1.1rem;cursor:pointer;position:relative}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--good);position:absolute;top:6px;right:6px;border:2px solid var(--card)}
+.dot.pend{background:var(--warn)}.dot.off{background:var(--bad)}
+.sec{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:20px 2px 8px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile,.row,.card,.chip,.btn,.pin{border-radius:var(--r)}
+.tile{background:var(--card);border:var(--bw) solid var(--line);padding:calc(var(--pad) + 4px) var(--pad);text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:74px;justify-content:center}
+.tile b{font-size:1.02rem}.tile span{font-size:.78rem;color:var(--muted)}
+.tile.check{border-color:var(--accent)}
+.pin{background:var(--accent);color:var(--accent-text);border:var(--bw) solid var(--accent);padding:var(--pad);font-weight:700;text-align:center;cursor:pointer;flex:1;min-height:52px}
+.pins{display:flex;gap:10px;margin-top:6px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{background:var(--card);border:var(--bw) solid var(--line);padding:var(--pad);display:flex;align-items:center;gap:12px;cursor:pointer;min-height:58px;text-align:left;width:100%}
+.row .name{flex:1;font-weight:600}.row .name small{display:block;font-weight:400;color:var(--muted);font-size:.74rem;margin-top:2px}
+.badge{min-width:32px;height:32px;border-radius:999px;display:grid;place-items:center;font-size:.85rem;font-weight:700;padding:0 8px;background:var(--bg);color:var(--muted);border:var(--bw) solid var(--line)}
+.badge.on{background:var(--good);color:#fff;border-color:var(--good)}
+.back{background:none;border:none;font-size:1rem;color:var(--accent);padding:8px 0;cursor:pointer;font-weight:600}
+.muted{color:var(--muted)}.small{font-size:.8rem}
+.empty{padding:24px 8px;text-align:center;color:var(--muted)}
+/* sheet */
+#sheetWrap{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+#sheetWrap.open{display:flex}
+#sheet{background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom) + 20px);border:var(--bw) solid var(--line)}
+#sheet h2{margin:2px 0 4px;font-size:1.2rem}
+#sheet .sub{color:var(--muted);font-size:.8rem;margin-bottom:10px}
+.field{margin:14px 0 4px;font-weight:700;font-size:.85rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{border:var(--bw) solid var(--line);background:var(--card);padding:11px 16px;cursor:pointer;min-height:44px;font-weight:600}
+.chip.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.btn{border:var(--bw) solid var(--accent);background:var(--accent);color:var(--accent-text);padding:14px 18px;font-weight:700;cursor:pointer;width:100%;margin-top:16px;min-height:50px}
+.btn.sec2{background:var(--card);color:var(--text);border-color:var(--line)}
+.btn[disabled]{opacity:.4;cursor:default}
+.inp,select.inp,textarea.inp{width:100%;padding:12px;border-radius:calc(var(--r) * .7);border:var(--bw) solid var(--line);background:var(--card);margin-top:6px}
+textarea.inp{min-height:96px;resize:vertical}
+input[type=range]{width:100%;accent-color:var(--accent);margin-top:10px}
+.sl{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+.big{font-size:1.5rem;font-weight:800;text-align:center;margin-top:6px}
+details.more{margin-top:14px}details.more summary{cursor:pointer;color:var(--muted);font-size:.82rem}
+.common{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.common .row{min-height:48px;padding:10px 12px}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%) translateY(120px);background:#222;color:#fff;border-radius:999px;padding:11px 18px;display:flex;gap:14px;align-items:center;z-index:40;transition:transform .2s;max-width:92vw;font-size:.9rem}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast button{background:none;border:none;color:#9dd6ff;font-weight:700;cursor:pointer;font-size:.9rem}
+.score{display:flex;align-items:center;gap:6px}
+.score button{width:40px;height:40px;border-radius:50%;border:var(--bw) solid var(--line);background:var(--card);font-size:1.2rem;font-weight:700;cursor:pointer}
+.score .val{min-width:48px;text-align:center;font-weight:800;cursor:pointer}
+.seg{display:flex;gap:6px;margin-top:6px}.seg .chip{flex:1;text-align:center}
+.colors{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.colors label{font-size:.7rem;color:var(--muted);display:flex;flex-direction:column;gap:4px;align-items:center}
+.colors input{width:100%;height:40px;border:var(--bw) solid var(--line);border-radius:10px;padding:2px;background:var(--card)}
+.vibes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.vibe{border:var(--bw) solid var(--line);padding:12px 6px;text-align:center;cursor:pointer;font-weight:700;font-size:.85rem;border-radius:var(--r)}
+.vibe.on{outline:3px solid var(--accent)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0}
+.toggle input{width:22px;height:22px;accent-color:var(--accent)}
+.err{background:#fde8e6;color:#8a2a22;padding:10px 12px;border-radius:10px;margin:10px 0;font-size:.85rem}
+.tag{font-size:.65rem;border-radius:999px;border:var(--bw) solid var(--line);padding:2px 8px;color:var(--muted);margin-left:6px}
+/* button styles */
+body[data-bs=soft] .tile,body[data-bs=soft] .row,body[data-bs=soft] .chip{border-color:transparent;background:color-mix(in srgb,var(--accent) 10%,var(--card))}
+body[data-bs=soft] .chip.on{background:var(--accent)}
+body[data-bs=outline] .tile,body[data-bs=outline] .row,body[data-bs=outline] .chip{background:transparent;border:max(var(--bw),2px) solid var(--accent)}
+body[data-bs=outline] .chip.on{background:var(--accent)}
+body[data-bs=outline] .pin,body[data-bs=outline] .btn{background:transparent;color:var(--accent);border:max(var(--bw),2px) solid var(--accent)}
+body[data-bs=raised] .tile,body[data-bs=raised] .row,body[data-bs=raised] .chip,body[data-bs=raised] .pin,body[data-bs=raised] .btn{box-shadow:0 3px 0 rgba(0,0,0,.18),0 6px 14px rgba(0,0,0,.08)}
+body[data-bs=raised] .tile:active,body[data-bs=raised] .row:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.tile:active,.row:active,.chip:active,.pin:active{filter:brightness(.94)}
+.flash{animation:fl .5s}@keyframes fl{0%{background:var(--good);color:#fff}100%{}}
+</style>
+</head>
+<body data-bs="rounded">
+<div id="app"></div>
+<div id="sheetWrap"><div id="sheet"></div></div>
+<div id="toast"><span id="toastMsg"></span><button id="toastUndo">Undo</button></div>
+<script>
+'use strict';
+const VERSION = '1.0';
+/* ============================ storage ============================ */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('ga.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('ga.' + k, JSON.stringify(v)); } catch (e) { /* storage blocked */ } }
+};
+const S = {
+  conn: LS.get('conn', null), cfg: LS.get('cfg', null), queue: LS.get('queue', []), sent: LS.get('sent', []),
+  ui: LS.get('ui', null), timers: LS.get('timers', {}), view: { name: 'home' }, sheet: null, online: true, lastSync: LS.get('lastSync', 0),
+  err: '', flushing: false, lastTs: 0
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const save = k => LS.set(k, S[k]);
+
+/* ============================ look & feel ============================ */
+const VIBES = {
+  Calm:     { bg: '#eef3f1', card: '#ffffff', text: '#1b2a26', muted: '#66766f', accent: '#2f7d6d', line: '#d5e0db', bs: 'rounded', font: 'sys', border: 'thin' },
+  Midnight: { bg: '#0f1420', card: '#182032', text: '#e8ecf6', muted: '#8a96b0', accent: '#6aa6ff', line: '#2a3550', bs: 'rounded', font: 'sys', border: 'thin', accentText: '#07101f' },
+  Paper:    { bg: '#f6efe2', card: '#fffaf0', text: '#3a2f22', muted: '#8a7a63', accent: '#b5532c', line: '#e0d3bb', bs: 'soft', font: 'serif', border: 'thin' },
+  Neon:     { bg: '#0b0b12', card: '#14141f', text: '#f2f2ff', muted: '#9a9ac0', accent: '#ff3ea5', line: '#34344f', bs: 'outline', font: 'mono', border: 'thin', accentText: '#fff' },
+  Forest:   { bg: '#14201a', card: '#1c2b23', text: '#e5f0e8', muted: '#8fa89a', accent: '#7bd389', line: '#2f4538', bs: 'soft', font: 'rounded', border: 'thin', accentText: '#0b1a10' },
+  Sunset:   { bg: '#fff4ec', card: '#ffffff', text: '#35212b', muted: '#8c6b76', accent: '#e4572e', line: '#f2d5c6', bs: 'pill', font: 'rounded', border: 'thin' },
+  Mono:     { bg: '#ffffff', card: '#ffffff', text: '#000000', muted: '#555555', accent: '#000000', line: '#000000', bs: 'square', font: 'sys', border: 'thick' },
+  Pop:      { bg: '#fff9db', card: '#ffffff', text: '#1f1f3d', muted: '#6b6b8d', accent: '#5b3df5', line: '#1f1f3d', bs: 'raised', font: 'rounded', border: 'thick' }
+};
+const FONTS = {
+  sys: 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif',
+  rounded: 'ui-rounded,"SF Pro Rounded","Nunito","Quicksand","Varela Round",system-ui,sans-serif',
+  serif: 'Georgia,"Noto Serif","Times New Roman",serif',
+  mono: 'ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace',
+  hand: '"Segoe Print","Chalkboard SE","Comic Sans MS","Bradley Hand",cursive'
+};
+const BORDERS = { none: '0px', thin: '1px', thick: '3px' };
+const RADII = { rounded: '14px', soft: '14px', outline: '14px', raised: '14px', pill: '999px', square: '3px' };
+const DENS = { compact: '9px', cozy: '14px', roomy: '20px' };
+const DEFAULT_UI = { vibe: 'Calm', custom: {}, bs: null, font: null, border: null, size: 100, density: 'cozy', haptics: true, autoSubmit: true, ts: 0 };
+
+function currentUi() { return Object.assign({}, DEFAULT_UI, S.ui || {}); }
+function applyUi() {
+  const u = currentUi(), v = VIBES[u.vibe] || VIBES.Calm, c = u.custom || {};
+  const R = document.documentElement.style;
+  const bs = u.bs || v.bs, font = u.font || v.font, border = u.border || v.border;
+  const col = k => c[k] || v[k];
+  R.setProperty('--bg', col('bg')); R.setProperty('--card', col('card')); R.setProperty('--text', col('text'));
+  R.setProperty('--muted', col('muted')); R.setProperty('--accent', col('accent')); R.setProperty('--line', col('line'));
+  R.setProperty('--accent-text', c.accent ? contrast(c.accent) : (v.accentText || '#ffffff'));
+  R.setProperty('--r', RADII[bs] || '14px'); R.setProperty('--bw', BORDERS[border] || '1px');
+  R.setProperty('--font', FONTS[font] || FONTS.sys); R.setProperty('--fs', (16 * u.size / 100) + 'px'); R.setProperty('--pad', DENS[u.density] || '14px');
+  document.body.dataset.bs = bs;
+  const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.content = col('bg');
+}
+function contrast(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return '#fff';
+  const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#111111' : '#ffffff';
+}
+function buzz() { if (currentUi().haptics && navigator.vibrate) { try { navigator.vibrate(14); } catch (e) { /* ignore */ } } }
+
+/* ============================ dates ============================ */
+const WD = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+const p2 = n => (n < 10 ? '0' : '') + n;
+function dayStartH() { return (S.cfg && S.cfg.dayStart) || 0; }
+function dayStr(ms) { const d = new Date(ms - dayStartH() * 3600000); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+function dayDate(ds) { const [y, m, d] = ds.split('-').map(Number); return new Date(y, m - 1, d); }
+function dayNum(ds) { const [y, m, d] = ds.split('-').map(Number); return Math.round(Date.UTC(y, m - 1, d) / 86400000); }
+function weekdayOf(ds) { return WD[dayDate(ds).getDay()]; }
+function daysAllow(spec, ds) {
+  const s = (spec || '').trim(); if (!s) return true;
+  const w = weekdayOf(ds);
+  return s.toLowerCase().split(/[,\s]+/).filter(Boolean).some(t => t.slice(0, 3) === w);
+}
+function inWindow(open, close, nowMs) {
+  if (!open || !close) return true;
+  const d = new Date(nowMs), t = d.getHours() * 60 + d.getMinutes();
+  const o = +open.slice(0, 2) * 60 + +open.slice(3), c = +close.slice(0, 2) * 60 + +close.slice(3);
+  if (o === c) return true;
+  return o < c ? (t >= o && t < c) : (t >= o || t < c);
+}
+function checkActive(ch, nowMs) {
+  const ds = dayStr(nowMs);
+  if (ch.start && ds < ch.start) return false;
+  if (ch.end && ds > ch.end) return false;
+  if (!daysAllow(ch.days, ds)) return false;
+  if (!inWindow(ch.open, ch.close, nowMs)) return false;
+  if (ch.condMet === false) return false;
+  return true;
+}
+function goalActive(g, ds) {
+  if (g.start && ds < g.start) return false;
+  if (g.end && ds > g.end) return false;
+  if (!daysAllow(g.days, ds)) return false;
+  if (g.on > 0 && g.off > 0 && g.cstart) {
+    const k = (dayNum(ds) - dayNum(g.cstart)) % (g.on + g.off);
+    if (((k % (g.on + g.off)) + (g.on + g.off)) % (g.on + g.off) >= g.on) return false;
+  }
+  return true;
+}
+function fmtTime(ms) { const d = new Date(ms); let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + p2(d.getMinutes()) + ' ' + ap; }
+function fmtDay(ds) { return dayDate(ds).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }); }
+function localInput(ms) { const d = new Date(ms); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) + 'T' + p2(d.getHours()) + ':' + p2(d.getMinutes()); }
+const usedTs = new Set();
+function nextTs(at) { let t = Math.round(at || Date.now()); while (usedTs.has(t)) t++; usedTs.add(t); return t; }
+
+/* ============================ network ============================ */
+async function net(body, ms) {
+  const c = S.conn; if (!c) throw new Error('not connected');
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), ms || 25000);
+  try {
+    const res = await fetch(c.u, { method: 'POST', body: JSON.stringify(Object.assign({ k: c.k }, body)), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', signal: ctl.signal });
+    return await res.json();
+  } finally { clearTimeout(to); }
+}
+async function pullConfig(manual) {
+  if (!S.conn) return;
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 25000);
+  try {
+    const res = await fetch(S.conn.u + (S.conn.u.includes('?') ? '&' : '?') + 'action=config&k=' + encodeURIComponent(S.conn.k), { redirect: 'follow', signal: ctl.signal });
+    const j = await res.json();
+    if (!j.ok) { S.err = j.error === 'auth' ? 'The key was not accepted. Open Settings > Connection.' : ('Sheet says: ' + j.error); S.online = true; render(); return; }
+    S.cfg = j; save('cfg'); S.err = ''; S.online = true; S.lastSync = Date.now(); LS.set('lastSync', S.lastSync);
+    // keep only recently sent entries that the Sheet has not echoed yet
+    const have = new Set(j.recent.map(e => e.ts + '|' + e.button));
+    S.sent = S.sent.filter(e => !have.has(e.ts + '|' + e.button) && e.ts > Date.now() - 3 * 86400000); save('sent');
+    const su = j.ui;
+    if (su && su.data && (!S.ui || (su.ts > (S.ui.ts || 0)))) { S.ui = Object.assign({}, su.data, { ts: su.ts }); save('ui'); applyUi(); }
+    if (manual) toast('Updated');
+  } catch (e) { S.online = false; if (manual) toast('Offline. Using saved setup.'); }
+  render();
+}
+async function flush() {
+  if (S.flushing || !S.queue.length || !S.conn) return;
+  S.flushing = true;
+  try {
+    while (S.queue.length) {
+      const q = S.queue[0];
+      let r;
+      if (q.kind === 'log') {
+        const batch = []; for (const it of S.queue) { if (it.kind !== 'log' || batch.length >= 20) break; batch.push(it); }
+        r = await net({ action: 'log', entries: batch.map(b => b.e) });
+        if (!r.ok) { if (r.error === 'auth') S.err = 'The key was not accepted. Open Settings > Connection.'; break; }
+        let stop = false;
+        batch.forEach((b, i) => {
+          const st = r.results[i];
+          if (st === 'full') { stop = true; S.err = r.full || 'The Log is full.'; return; }
+          S.queue.splice(S.queue.indexOf(b), 1);
+          if (st === 'ok' || st === 'dup') S.sent.push(b.e);
+        });
+        save('queue'); save('sent'); if (stop) break;
+      } else if (q.kind === 'system') {
+        r = await net({ action: 'system', entry: q.e });
+        if (!r.ok) { if (/required|full/.test(r.error || '')) { S.queue.shift(); S.err = r.error; save('queue'); continue; } break; }
+        S.queue.shift(); save('queue');
+      } else if (q.kind === 'undo') {
+        r = await net({ action: 'undo', entry: q.e });
+        if (!r.ok) break;
+        S.queue.shift(); save('queue');
+      } else { S.queue.shift(); save('queue'); }
+    }
+    S.online = true;
+  } catch (e) { S.online = false; }
+  S.flushing = false; render();
+  if (S.queue.length) { clearTimeout(flush.t); flush.t = setTimeout(flush, S.online ? 8000 : 20000); }
+}
+
+/* ============================ data helpers ============================ */
+function buttons() { return (S.cfg && S.cfg.buttons) || []; }
+function btn(name) { return buttons().find(b => b.name === name); }
+function entriesAll() {
+  const out = [], seen = new Set();
+  const add = e => { const k = e.ts + '|' + e.button; if (seen.has(k)) return; seen.add(k); out.push(e); };
+  ((S.cfg && S.cfg.recent) || []).forEach(r => add({ ts: r.ts, button: r.button, v1: r.v[0], v2: r.v[1], v3: r.v[2], num: r.num, note: r.note }));
+  S.sent.forEach(add);
+  S.queue.forEach(q => { if (q.kind === 'log') add(Object.assign({ pending: true }, q.e)); });
+  const dead = new Set(S.queue.filter(q => q.kind === 'undo').map(q => q.e.ts + '|' + q.e.button));
+  return out.filter(e => !dead.has(e.ts + '|' + e.button)).sort((a, b) => a.ts - b.ts);
+}
+function todayEntries() { const t = dayStr(Date.now()); return entriesAll().filter(e => dayStr(e.ts) === t); }
+function countToday(name) { return todayEntries().filter(e => e.button === name).length; }
+function plainTypes(b) { return b.type !== 'upgrade' && b.type !== 'manual'; }
+function categories() {
+  const m = new Map();
+  buttons().filter(plainTypes).forEach(b => { if (!m.has(b.category)) m.set(b.category, []); m.get(b.category).push(b); });
+  return m;
+}
+function commonFor(name) { return ((S.cfg && S.cfg.common) || []).filter(c => c.button === name); }
+function activeGoals(ds) { return ((S.cfg && S.cfg.goals) || []).filter(g => goalActive(g, ds || dayStr(Date.now()))); }
+
+/* ============================ logging ============================ */
+function enqueueLog(b, vals, extra) {
+  extra = extra || {};
+  const e = {
+    ts: nextTs(extra.ts), category: b.category, button: b.name,
+    v1: vals[0] || '', v2: vals[1] || '', v3: vals[2] || '',
+    num: extra.num === undefined ? null : extra.num, note: extra.note || ''
+  };
+  if (extra.common) e.common = extra.common;
+  S.queue.push({ kind: 'log', e }); save('queue');
+  buzz(); render(); flush();
+  return e;
+}
+function undoEntry(e) {
+  const i = S.queue.findIndex(q => q.kind === 'log' && q.e.ts === e.ts && q.e.button === e.button);
+  if (i >= 0) { S.queue.splice(i, 1); save('queue'); }
+  else {
+    S.sent = S.sent.filter(x => !(x.ts === e.ts && x.button === e.button));
+    if (S.cfg) S.cfg.recent = S.cfg.recent.filter(x => !(x.ts === e.ts && x.button === e.button));
+    save('sent'); save('cfg');
+    S.queue.push({ kind: 'undo', e: { ts: e.ts, button: e.button, common: e.common || undefined } }); save('queue'); flush();
+  }
+  render();
+}
+let toastT;
+function toast(msg, undoFn) {
+  $('#toastMsg').textContent = msg;
+  const u = $('#toastUndo'); u.style.display = undoFn ? '' : 'none';
+  u.onclick = () => { if (undoFn) undoFn(); $('#toast').classList.remove('show'); };
+  $('#toast').classList.add('show'); clearTimeout(toastT);
+  toastT = setTimeout(() => $('#toast').classList.remove('show'), undoFn ? 6000 : 2500);
+}
+function logAndToast(b, vals, extra) {
+  const e = enqueueLog(b, vals, extra);
+  const label = b.name + (vals.filter(Boolean).length ? ' · ' + vals.filter(Boolean).join(' · ') : '') + (extra && extra.num != null && b.type === 'timer' ? ' · ' + extra.num + ' min' : '');
+  toast('Logged ' + label, () => undoEntry(e));
+  return e;
+}
+
+/* ============================ rendering ============================ */
+function render() {
+  const app = $('#app');
+  if (!S.conn) { app.innerHTML = connectHtml(); return; }
+  if (!S.cfg) { app.innerHTML = headerHtml('Goals', '') + '<div class="empty">' + (S.err ? '<div class="err">' + esc(S.err) + '</div>' : 'Loading your setup…') + '</div>'; return; }
+  const v = S.view;
+  let html = '';
+  if (v.name === 'home') html = homeHtml();
+  else if (v.name === 'cat') html = listHtml(v.id, categories().get(v.id) || [], false);
+  else if (v.name === 'check') html = checkHtml(v.id);
+  else if (v.name === 'today') html = todayHtml();
+  else if (v.name === 'settings') html = settingsHtml();
+  else if (v.name === 'connect') html = connectHtml();
+  app.innerHTML = html;
+  const sy = S.view.scroll; if (sy !== undefined) { window.scrollTo(0, sy); S.view.scroll = undefined; }
+}
+function headerHtml(title, sub, back) {
+  const pend = S.queue.length;
+  const cls = !S.online ? 'off' : (pend ? 'pend' : '');
+  return (back ? '<button class="back" data-act="back">‹ Back</button>' : '') +
+    '<header class="top"><h1>' + esc(title) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</h1>' +
+    '<button class="icon" data-act="refresh" aria-label="Refresh" title="Refresh">↻<span class="dot ' + cls + '"></span></button>' +
+    '<button class="icon" data-act="settings" aria-label="Settings">⚙</button></header>' +
+    (S.err ? '<div class="err">' + esc(S.err) + '</div>' : '') +
+    (pend ? '<div class="small muted" style="margin:0 2px 6px">' + pend + ' waiting to sync' + (S.online ? '' : ' (offline)') + '</div>' : '');
+}
+function homeHtml() {
+  const now = Date.now(), ds = dayStr(now);
+  let h = headerHtml('Today', fmtDay(ds));
+  const up = buttons().find(b => b.type === 'upgrade'), man = buttons().find(b => b.type === 'manual');
+  if (up || man) {
+    h += '<div class="pins">';
+    if (up) h += '<button class="pin" data-act="open" data-b="' + esc(up.name) + '">＋ ' + esc(up.name) + '</button>';
+    if (man) h += '<button class="pin" data-act="open" data-b="' + esc(man.name) + '">✎ ' + esc(man.name) + '</button>';
+    h += '</div>';
+  }
+  const checks = (S.cfg.checks || []).filter(c => checkActive(c, now));
+  if (checks.length) {
+    h += '<div class="sec">Check-ins</div><div class="grid">';
+    checks.forEach(c => {
+      const done = c.items.filter(n => countToday(n) > 0).length;
+      h += '<button class="tile check" data-act="check" data-id="' + esc(c.name) + '"><b>' + esc(c.name) + '</b><span>' + done + ' of ' + c.items.length + ' done</span></button>';
+    });
+    h += '</div>';
+  }
+  h += '<div class="sec">Categories</div><div class="grid">';
+  categories().forEach((list, cat) => {
+    const n = list.reduce((a, b) => a + countToday(b.name), 0);
+    h += '<button class="tile" data-act="cat" data-id="' + esc(cat) + '"><b>' + esc(cat) + '</b><span>' + list.length + ' button' + (list.length === 1 ? '' : 's') + (n ? ' · ' + n + ' today' : '') + '</span></button>';
+  });
+  h += '</div>';
+  if (!categories().size) h += '<div class="empty">No buttons yet. Tick “Show?” on the Buttons tab, then tap ↻.</div>';
+  h += '<div class="sec">Log</div><button class="row" data-act="today"><span class="name">Today’s log<small>' + todayEntries().length + ' entries · tap to review or delete</small></span><span>›</span></button>';
+  h += '<div class="small muted" style="text-align:center;margin-top:18px">' + (S.lastSync ? 'Setup updated ' + fmtTime(S.lastSync) : '') + '</div>';
+  return h;
+}
+function rowHtml(b) {
+  const n = countToday(b.name);
+  const sub = b.goals.length ? b.goals.join(', ') : '';
+  const hasCommon = commonFor(b.name).length > 0;
+  const icon = b.type === 'timer' ? '⏱' : (hasCommon ? '★' : '');
+  return '<button class="row" data-act="open" data-b="' + esc(b.name) + '"><span class="name">' + esc(b.name) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>' +
+    (icon ? '<span class="muted">' + icon + '</span>' : '') + '<span class="badge ' + (n ? 'on' : '') + '">' + (n ? (b.type === 'check' || n === 1 ? '✓' + (n > 1 ? n : '') : n) : '＋') + '</span></button>';
+}
+function listHtml(title, list) {
+  let h = headerHtml(title, '', true) + '<div class="list">';
+  list.forEach(b => { h += rowHtml(b); });
+  return h + '</div>';
+}
+function checkHtml(name) {
+  const c = (S.cfg.checks || []).find(x => x.name === name);
+  if (!c) return headerHtml(name, '', true) + '<div class="empty">This check-in is gone.</div>';
+  let h = headerHtml(c.name, c.open ? 'Open ' + c.open + '–' + c.close : '', true) + '<div class="list">';
+  c.items.forEach(n => { const b = btn(n); if (b) h += rowHtml(b); });
+  if (!c.items.length) h += '<div class="empty">Add buttons on the CheckList tab.</div>';
+  return h + '</div>';
+}
+function todayHtml() {
+  const list = todayEntries().slice().reverse();
+  let h = headerHtml('Today’s log', list.length + ' entries', true) + '<div class="list">';
+  list.forEach((e, i) => {
+    const vals = [e.v1, e.v2, e.v3].filter(Boolean).join(' · ');
+    h += '<div class="row" style="cursor:default"><span class="name">' + esc(e.button) + '<small>' + fmtTime(e.ts) + (vals ? ' · ' + esc(vals) : '') +
+      (e.num != null && e.num !== '' ? ' · ' + esc(e.num) : '') + (e.note ? ' · ' + esc(e.note) : '') + (e.pending ? ' · ⏳' : '') + '</small></span>' +
+      '<button class="badge" data-act="del" data-i="' + i + '" aria-label="Delete">✕</button></div>';
+  });
+  if (!list.length) h += '<div class="empty">Nothing logged yet today.</div>';
+  S.todayList = list;
+  return h + '</div>';
+}
+
+/* ============================ sheets ============================ */
+function openSheet(html) { $('#sheet').innerHTML = html; $('#sheetWrap').classList.add('open'); }
+function closeSheet() { $('#sheetWrap').classList.remove('open'); S.sheet = null; }
+
+function openButton(name) {
+  const b = btn(name); if (!b) return;
+  if (b.type === 'upgrade') return openUpgrade(b);
+  if (b.type === 'manual') return openManual(b);
+  const hasFields = b.fields.length > 0, com = commonFor(b.name);
+  if ((b.type === 'tap' || b.type === 'check') && !hasFields && !com.length) { logAndToast(b, []); flashRow(name); return; }
+  S.sheet = { b, vals: ['', '', ''], num: null, when: null, text: '', started: null, tmode: null };
+  if (b.type === 'timer') S.sheet.started = S.timers[b.name] || null;
+  paintSheet();
+}
+function flashRow(name) { const el = document.querySelector('[data-b="' + CSS.escape(name) + '"]'); if (el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
+
+function fieldHtml(b, i) {
+  const f = b.fields[i], sh = S.sheet, label = f.label || ('Choice ' + (i + 1));
+  if (b.type === 'text' && i === 0) {
+    return '<div class="field">' + esc(label) + '</div><textarea class="inp" data-in="text" placeholder="Type here…">' + esc(sh.text) + '</textarea>';
+  }
+  if (!f.opts.length) return '<div class="field">' + esc(label) + '</div><input class="inp" data-in="free" data-i="' + i + '" value="' + esc(sh.vals[i]) + '">';
+  if (b.type === 'select') {
+    return '<div class="field">' + esc(label) + '</div><select class="inp" data-in="sel" data-i="' + i + '"><option value="">Choose…</option>' +
+      f.opts.map(o => '<option ' + (sh.vals[i] === o ? 'selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+  }
+  if (b.type === 'slider' && i === 0) {
+    const idx = f.opts.indexOf(sh.vals[i]);
+    return '<div class="field">' + esc(label) + '</div><div class="big" id="slv">' + (idx >= 0 ? esc(f.opts[idx]) : '—') + '</div>' +
+      '<input type="range" min="0" max="' + (f.opts.length - 1) + '" step="1" value="' + (idx >= 0 ? idx : Math.floor((f.opts.length - 1) / 2)) + '" data-in="slide" data-i="0">' +
+      '<div class="sl"><span>' + esc(f.opts[0]) + '</span><span>' + esc(f.opts[f.opts.length - 1]) + '</span></div>';
+  }
+  return '<div class="field">' + esc(label) + '</div><div class="chips">' +
+    f.opts.map(o => '<button class="chip ' + (sh.vals[i] === o ? 'on' : '') + '" data-act="chip" data-i="' + i + '" data-v="' + esc(o) + '">' + esc(o) + '</button>').join('') + '</div>';
+}
+function sheetReady() {
+  const sh = S.sheet, b = sh.b;
+  if (b.type === 'text') { if (!sh.text.trim()) return false; }
+  if (b.type === 'timer' && sh.num == null && !sh.tmode) return false;
+  return b.fields.every((f, i) => (b.type === 'text' && i === 0) || !f.opts.length || sh.vals[i] !== '');
+}
+function paintSheet() {
+  const sh = S.sheet; if (!sh) return;
+  const b = sh.b, com = commonFor(b.name);
+  let h = '<h2>' + esc(b.name) + '</h2><div class="sub">' + esc(b.goals.join(' · ')) + '</div>';
+  if (com.length) {
+    h += '<div class="field">Quick picks</div><div class="common">' +
+      com.map((c, i) => '<button class="row" data-act="common" data-i="' + i + '"><span class="name">' + esc(c.item) + '<small>' + esc(c.v.filter(Boolean).join(' · ')) + '</small></span><span class="muted small">' + (c.count || '') + '</span></button>').join('') + '</div>';
+    if (b.fields.length) h += '<div class="field" style="margin-top:18px">Or choose</div>';
+  }
+  if (b.type === 'timer') h += timerHtml(sh);
+  b.fields.forEach((f, i) => { h += fieldHtml(b, i); });
+  h += '<details class="more"><summary>Note / change time</summary><div class="field">Note</div><input class="inp" data-in="note" placeholder="optional" value="' + esc(sh.note || '') + '">' +
+    '<div class="field">When</div><input class="inp" type="datetime-local" data-in="when" value="' + localInput(sh.when || Date.now()) + '"></details>';
+  const needsBtn = !(b.fields.length && b.fields.every(f => f.opts.length) && b.type === 'chips' && currentUi().autoSubmit) || b.type !== 'chips';
+  h += '<button class="btn" data-act="submit" ' + (sheetReady() ? '' : 'disabled') + '>' + (b.type === 'timer' ? 'Log time' : 'Log it') + '</button>';
+  h += '<button class="btn sec2" data-act="close">Cancel</button>';
+  openSheet(h);
+}
+function timerHtml(sh) {
+  const now = Date.now();
+  if (sh.started) {
+    const mins = Math.max(0, Math.round((now - sh.started) / 600) / 100);
+    return '<div class="big">Running · ' + Math.floor(mins) + ' min</div><div class="sub" style="text-align:center">Started ' + fmtTime(sh.started) + '</div>' +
+      '<button class="btn" data-act="tstop">Stop &amp; log ' + Math.round(mins) + ' min</button>' +
+      '<button class="btn sec2" data-act="tdiscard">Discard timer</button>' +
+      '<details class="more"><summary>Fix the times by hand</summary>' + punchHtml(sh.started, now) + '</details>';
+  }
+  return '<button class="btn" data-act="tstart">▶ Start now</button>' +
+    '<div class="field" style="margin-top:20px">Or punch times in by hand</div>' + punchHtml(now - 30 * 60000, now);
+}
+function punchHtml(a, b) {
+  return '<div class="field">Started</div><input class="inp" type="datetime-local" id="pA" value="' + localInput(a) + '">' +
+    '<div class="field">Stopped</div><input class="inp" type="datetime-local" id="pB" value="' + localInput(b) + '">' +
+    '<div class="field">…or just minutes</div><input class="inp" type="number" id="pM" inputmode="decimal" placeholder="e.g. 25">' +
+    '<button class="btn sec2" data-act="punch">Use these times</button>';
+}
+function openUpgrade(b) {
+  const ds = dayStr(Date.now());
+  S.sheet = { b, upgrade: true, goal: '', text: '', attn: false, goals: activeGoals(ds) };
+  paintUpgrade();
+}
+function paintUpgrade() {
+  const sh = S.sheet;
+  let h = '<h2>' + esc(sh.b.name) + '</h2><div class="sub">Pick the goal, then write what you improved.</div><div class="chips">' +
+    sh.goals.map(g => '<button class="chip ' + (sh.goal === g.name ? 'on' : '') + '" data-act="ugoal" data-v="' + esc(g.name) + '">' + esc(g.name) + '</button>').join('') + '</div>';
+  if (!sh.goals.length) h += '<div class="empty">No goals found. Check the Goals tab.</div>';
+  if (sh.goal) {
+    h += '<div class="field">What did you improve?</div><textarea class="inp" id="utext" placeholder="One example…">' + esc(sh.text) + '</textarea>' +
+      '<label class="toggle"><span>Needs attention (ATTN)<br><small class="muted">Marks it for an update on the ATTN tab</small></span><input type="checkbox" id="uattn" ' + (sh.attn ? 'checked' : '') + '></label>';
+  }
+  h += '<button class="btn" data-act="usubmit" ' + (sh.goal && sh.text.trim() ? '' : 'disabled') + '>Submit</button><button class="btn sec2" data-act="close">Cancel</button>';
+  openSheet(h);
+  const t = $('#utext'); if (t && S.sheet.focus) { t.focus(); }
+}
+function openManual(b) {
+  const ds = dayStr(Date.now());
+  S.sheet = { b, manual: true, which: 'today', scores: {} };
+  paintManual();
+}
+function manualDay() { const ds = dayStr(Date.now()); return S.sheet.which === 'today' ? ds : dayStr(Date.now() - 86400000); }
+function paintManual() {
+  const sh = S.sheet, ds = manualDay();
+  const goals = activeGoals(ds);
+  const prev = {}; entriesAll().filter(e => e.button === sh.b.name && dayStr(e.ts) === ds).forEach(e => { prev[e.v1] = e.num; });
+  let h = '<h2>' + esc(sh.b.name) + '</h2><div class="sub">Set a score only for goals you want to override. Blank = untouched.</div>' +
+    '<div class="seg"><button class="chip ' + (sh.which === 'today' ? 'on' : '') + '" data-act="mday" data-v="today">Today</button><button class="chip ' + (sh.which === 'yest' ? 'on' : '') + '" data-act="mday" data-v="yest">Yesterday</button></div><div class="list" style="margin-top:12px">';
+  goals.forEach((g, i) => {
+    const v = sh.scores[g.name];
+    h += '<div class="row" style="cursor:default"><span class="name">' + esc(g.name) + (prev[g.name] != null ? '<small>logged: ' + esc(prev[g.name]) + '</small>' : '') + '</span><span class="score">' +
+      '<button data-act="mstep" data-g="' + esc(g.name) + '" data-d="-0.5">−</button><span class="val" data-act="mclear" data-g="' + esc(g.name) + '">' + (v === undefined ? '—' : (v > 0 ? '+' : '') + v) + '</span><button data-act="mstep" data-g="' + esc(g.name) + '" data-d="0.5">＋</button></span></div>';
+  });
+  const n = Object.keys(sh.scores).length;
+  h += '</div><button class="btn" data-act="msubmit" ' + (n ? '' : 'disabled') + '>Log ' + n + ' score' + (n === 1 ? '' : 's') + '</button><button class="btn sec2" data-act="close">Cancel</button>';
+  openSheet(h);
+}
+
+/* ============================ settings ============================ */
+function settingsHtml() {
+  const u = currentUi(), v = VIBES[u.vibe] || VIBES.Calm, c = u.custom || {};
+  const val = k => c[k] || v[k];
+  const bs = u.bs || v.bs, font = u.font || v.font, border = u.border || v.border;
+  const seg = (key, cur, opts) => '<div class="chips">' + opts.map(o => '<button class="chip ' + (cur === o ? 'on' : '') + '" data-act="ui" data-k="' + key + '" data-v="' + o + '">' + o + '</button>').join('') + '</div>';
+  let h = headerHtml('Settings', 'v' + VERSION, true);
+  h += '<div class="sec">Vibe</div><div class="vibes">' + Object.keys(VIBES).map(n => {
+    const x = VIBES[n]; return '<button class="vibe ' + (u.vibe === n ? 'on' : '') + '" data-act="vibe" data-v="' + n + '" style="background:' + x.bg + ';color:' + x.text + ';border-color:' + x.accent + '"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + x.accent + ';margin-right:6px"></span>' + n + '</button>';
+  }).join('') + '</div>';
+  h += '<div class="sec">Colors</div><div class="colors">' + [['bg', 'Background'], ['card', 'Cards'], ['text', 'Text'], ['accent', 'Accent']].map(([k, l]) =>
+    '<label>' + l + '<input type="color" data-in="color" data-k="' + k + '" value="' + val(k) + '"></label>').join('') + '</div>';
+  h += '<div class="sec">Buttons</div>' + seg('bs', bs, ['rounded', 'pill', 'square', 'soft', 'outline', 'raised']);
+  h += '<div class="sec">Borders</div>' + seg('border', border, ['none', 'thin', 'thick']);
+  h += '<div class="sec">Font</div>' + seg('font', font, ['sys', 'rounded', 'serif', 'mono', 'hand']);
+  h += '<div class="sec">Text size · ' + u.size + '%</div><input type="range" min="85" max="135" step="5" value="' + u.size + '" data-in="size">';
+  h += '<div class="sec">Spacing</div>' + seg('density', u.density, ['compact', 'cozy', 'roomy']);
+  h += '<div class="sec">Behavior</div><label class="toggle"><span>Vibrate on tap</span><input type="checkbox" data-in="haptics" ' + (u.haptics ? 'checked' : '') + '></label>' +
+    '<label class="toggle"><span>Log chip buttons as soon as every choice is made</span><input type="checkbox" data-in="autoSubmit" ' + (u.autoSubmit ? 'checked' : '') + '></label>';
+  h += '<button class="btn sec2" data-act="uiall">Use this look on all my devices</button><button class="btn sec2" data-act="uireset">Reset look</button>';
+  h += '<div class="sec">Sync</div><div class="small muted">' + (S.queue.length ? S.queue.length + ' waiting to send. ' : 'Everything is sent. ') + (S.lastSync ? 'Setup pulled ' + fmtTime(S.lastSync) + '.' : '') + '</div>' +
+    '<button class="btn sec2" data-act="syncnow">Sync now</button>';
+  h += '<div class="sec">Connection</div><button class="btn sec2" data-act="share">Copy link for another device</button><button class="btn sec2" data-act="reconnect">Change connection</button><button class="btn sec2" data-act="reload">Reload app</button>';
+  return h;
+}
+function connectHtml() {
+  return '<header class="top"><h1>Connect<small>One time per device</small></h1></header>' +
+    '<p class="muted small">Paste the web-app address and the secret key from your setup guide. Or open the link you copied from another device and this fills itself in.</p>' +
+    (S.err ? '<div class="err">' + esc(S.err) + '</div>' : '') +
+    '<div class="field">Web app address</div><input class="inp" id="cu" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(S.conn ? S.conn.u : '') + '">' +
+    '<div class="field">Secret key</div><input class="inp" id="ck" value="' + esc(S.conn ? S.conn.k : '') + '">' +
+    '<button class="btn" data-act="connect">Connect</button>';
+}
+
+/* ============================ events ============================ */
+function go(view) { S.hist = S.hist || []; S.hist.push({ view: S.view, y: window.scrollY }); S.view = view; render(); window.scrollTo(0, 0); }
+function back() { const h = (S.hist || []).pop(); S.view = h ? h.view : { name: 'home' }; if (h) S.view.scroll = h.y; render(); }
+
+document.addEventListener('click', async ev => {
+  const t = ev.target.closest('[data-act]'); if (!t) { if (ev.target.id === 'sheetWrap') closeSheet(); return; }
+  const a = t.dataset.act, sh = S.sheet;
+  if (a === 'back') return back();
+  if (a === 'settings') return go({ name: 'settings' });
+  if (a === 'refresh') { await flush(); return pullConfig(true); }
+  if (a === 'cat') return go({ name: 'cat', id: t.dataset.id });
+  if (a === 'check') return go({ name: 'check', id: t.dataset.id });
+  if (a === 'today') return go({ name: 'today' });
+  if (a === 'open') return openButton(t.dataset.b);
+  if (a === 'close') return closeSheet();
+  if (a === 'del') {
+    const e = S.todayList[+t.dataset.i];
+    if (t.dataset.arm) { undoEntry(e); return; }
+    t.dataset.arm = '1'; t.textContent = 'Delete?'; t.style.background = 'var(--bad)'; t.style.color = '#fff';
+    setTimeout(() => { if (t.isConnected) { delete t.dataset.arm; t.textContent = '✕'; t.style.background = ''; t.style.color = ''; } }, 3000);
+    return;
+  }
+  if (a === 'chip' && sh) {
+    const i = +t.dataset.i; sh.vals[i] = t.dataset.v;
+    const b = sh.b;
+    if (b.type === 'chips' && currentUi().autoSubmit && b.fields.every((f, k) => !f.opts.length ? true : sh.vals[k] !== '') && !b.fields.some(f => !f.opts.length) && sheetReady()) return submitSheet();
+    return paintSheet();
+  }
+  if (a === 'common' && sh) {
+    const c = commonFor(sh.b.name)[+t.dataset.i];
+    closeSheet(); logAndToast(sh.b, c.v, { common: c.item, note: c.item });
+    if (S.cfg) { const row = S.cfg.common.find(x => x.button === c.button && x.item === c.item); if (row) row.count++; save('cfg'); }
+    return render();
+  }
+  if (a === 'submit') return submitSheet();
+  if (a === 'tstart') { S.timers[sh.b.name] = Date.now(); save('timers'); sh.started = S.timers[sh.b.name]; return paintSheet(); }
+  if (a === 'tdiscard') { delete S.timers[sh.b.name]; save('timers'); sh.started = null; return paintSheet(); }
+  if (a === 'tstop') { return finishTimer(sh.started, Date.now()); }
+  if (a === 'punch') {
+    const m = parseFloat($('#pM').value), A = new Date($('#pA').value).getTime(), B = new Date($('#pB').value).getTime();
+    if (m > 0) return finishTimer(Date.now() - m * 60000, Date.now(), m);
+    if (!(B > A)) { toast('Stop time must be after start'); return; }
+    return finishTimer(A, B);
+  }
+  if (a === 'ugoal') { sh.goal = t.dataset.v; sh.focus = true; return paintUpgrade(); }
+  if (a === 'usubmit') {
+    const e = { ts: nextTs(), goal: sh.goal, text: sh.text.trim(), attn: !!sh.attn };
+    S.queue.push({ kind: 'system', e }); save('queue'); closeSheet(); buzz(); toast('Saved system upgrade'); render(); flush(); return;
+  }
+  if (a === 'mday') { sh.which = t.dataset.v; return paintManual(); }
+  if (a === 'mstep') {
+    const g = t.dataset.g, d = +t.dataset.d, cur = sh.scores[g] === undefined ? 0 : sh.scores[g];
+    const lim = (S.cfg.settings && S.cfg.settings.tapMax != null ? 2 : 2);
+    sh.scores[g] = Math.max(-lim, Math.min(lim, Math.round((cur + d) * 2) / 2)); return paintManual();
+  }
+  if (a === 'mclear') { delete sh.scores[t.dataset.g]; return paintManual(); }
+  if (a === 'msubmit') {
+    const ds = manualDay(); const base = dayDate(ds).getTime() + (dayStartH() + 12) * 3600000;
+    const entries = Object.keys(sh.scores); closeSheet();
+    entries.forEach((g, i) => enqueueLog(sh.b, [g], { num: sh.scores[g], ts: sh.which === 'today' ? undefined : base + i }));
+    toast('Logged ' + entries.length + ' score' + (entries.length === 1 ? '' : 's')); return;
+  }
+  if (a === 'vibe') { const u = currentUi(); S.ui = Object.assign({}, u, { vibe: t.dataset.v, custom: {}, bs: null, font: null, border: null, ts: Date.now() }); save('ui'); applyUi(); return render(); }
+  if (a === 'ui') { const u = currentUi(); u[t.dataset.k] = t.dataset.v; u.ts = Date.now(); S.ui = u; save('ui'); applyUi(); return render(); }
+  if (a === 'uireset') { S.ui = Object.assign({}, DEFAULT_UI, { ts: Date.now() }); save('ui'); applyUi(); return render(); }
+  if (a === 'uiall') { try { const r = await net({ action: 'ui', data: currentUi() }); toast(r.ok ? 'Saved for all devices' : 'Could not save'); } catch (e) { toast('Offline. Try again later.'); } return; }
+  if (a === 'syncnow') { await flush(); return pullConfig(true); }
+  if (a === 'reload') { try { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.unregister())); } catch (e) { /* ignore */ } location.reload(); return; }
+  if (a === 'share') {
+    const link = location.origin + location.pathname + '#c=' + btoa(unescape(encodeURIComponent(JSON.stringify(S.conn)))).replace(/\+/g, '-').replace(/\//g, '_');
+    try { await navigator.clipboard.writeText(link); toast('Link copied. Open it on the other device.'); } catch (e) { prompt('Copy this link:', link); }
+    return;
+  }
+  if (a === 'reconnect') { S.view = { name: 'connect' }; return render(); }
+  if (a === 'connect') {
+    const u = $('#cu').value.trim(), k = $('#ck').value.trim();
+    if (!/^https:\/\/script\.google\.com\/.+\/exec/.test(u) && !/^http:\/\/localhost/.test(u)) { S.err = 'That address should start with https://script.google.com and end in /exec'; return render(); }
+    S.conn = { u, k }; LS.set('conn', S.conn); S.err = ''; S.view = { name: 'home' }; S.hist = []; render(); pullConfig(); return;
+  }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target, k = t.dataset && t.dataset.in, sh = S.sheet; if (!k) return;
+  if (k === 'text') { sh.text = t.value; const b = document.querySelector('[data-act=submit]'); if (b) b.disabled = !sheetReady(); }
+  else if (k === 'free') { sh.vals[+t.dataset.i] = t.value.trim(); const b = document.querySelector('[data-act=submit]'); if (b) b.disabled = !sheetReady(); }
+  else if (k === 'sel') { sh.vals[+t.dataset.i] = t.value; const b = document.querySelector('[data-act=submit]'); if (b) b.disabled = !sheetReady(); }
+  else if (k === 'slide') { const f = sh.b.fields[0]; sh.vals[0] = f.opts[+t.value]; $('#slv').textContent = sh.vals[0]; const b = document.querySelector('[data-act=submit]'); if (b) b.disabled = !sheetReady(); }
+  else if (k === 'note') sh.note = t.value;
+  else if (k === 'when') sh.when = t.value ? new Date(t.value).getTime() : null;
+  else if (sh && sh.upgrade && t.id === 'utext') { sh.text = t.value; const b = document.querySelector('[data-act=usubmit]'); if (b) b.disabled = !(sh.goal && sh.text.trim()); }
+  else if (k === 'color') { const u = currentUi(); u.custom = Object.assign({}, u.custom, { [t.dataset.k]: t.value }); u.ts = Date.now(); S.ui = u; save('ui'); applyUi(); }
+  else if (k === 'size') { const u = currentUi(); u.size = +t.value; u.ts = Date.now(); S.ui = u; save('ui'); applyUi(); }
+});
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.id === 'utext') { S.sheet.text = t.value; }
+  if (t.id === 'uattn') { S.sheet.attn = t.checked; }
+  if (t.dataset && (t.dataset.in === 'haptics' || t.dataset.in === 'autoSubmit')) { const u = currentUi(); u[t.dataset.in] = t.checked; u.ts = Date.now(); S.ui = u; save('ui'); }
+  if (t.dataset && t.dataset.in === 'size') render();
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.id === 'utext' && S.sheet && S.sheet.upgrade) { S.sheet.text = t.value; const b = document.querySelector('[data-act=usubmit]'); if (b) b.disabled = !(S.sheet.goal && S.sheet.text.trim()); }
+  if (t.id === 'uattn') S.sheet.attn = t.checked;
+});
+
+function submitSheet() {
+  const sh = S.sheet; if (!sh || !sheetReady()) return;
+  const b = sh.b;
+  const vals = sh.vals.slice();
+  const extra = { note: sh.note || '', ts: sh.when || undefined };
+  if (b.type === 'text') { vals[0] = sh.text.trim(); }
+  if (b.type === 'timer') { extra.num = sh.num; }
+  closeSheet();
+  logAndToast(b, vals, extra);
+  flashRow(b.name);
+}
+function finishTimer(a, b2, minsOverride) {
+  const sh = S.sheet, b = sh.b;
+  const mins = Math.round((minsOverride != null ? minsOverride : (b2 - a) / 60000) * 10) / 10;
+  const vals = sh.vals.slice();
+  if (!b.fields.every((f, i) => !f.opts.length || vals[i] !== '')) { sh.num = mins; sh.tmode = 'done'; sh.punch = { a, b2 }; toast('Pick the choices first'); return paintSheet(); }
+  delete S.timers[b.name]; save('timers');
+  closeSheet();
+  logAndToast(b, vals, { num: mins, ts: b2, note: (sh.note ? sh.note + ' · ' : '') + fmtTime(a) + '–' + fmtTime(b2) });
+}
+
+/* ============================ start up ============================ */
+function readHash() {
+  const m = /#c=([^&]+)/.exec(location.hash);
+  if (!m) return;
+  try {
+    const j = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))));
+    if (j.u && j.k) { S.conn = { u: j.u, k: j.k }; LS.set('conn', S.conn); }
+  } catch (e) { /* bad link */ }
+  history.replaceState(null, '', location.pathname + location.search);
+}
+window.addEventListener('online', () => { S.online = true; flush(); pullConfig(); });
+window.addEventListener('offline', () => { S.online = false; render(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') { render(); flush(); if (Date.now() - S.lastSync > 60000) pullConfig(); }
+});
+setInterval(() => { if (document.visibilityState === 'visible' && !S.sheet) render(); }, 60000);
+window.__app = { S, render, pullConfig, flush };
+readHash(); applyUi(); render();
+if (S.conn) { pullConfig(); flush(); }
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
